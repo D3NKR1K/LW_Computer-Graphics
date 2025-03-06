@@ -32,7 +32,7 @@ def draw_tr(x0: float, y0: float, z0: float, x1: float, y1: float, z1: float, x2
     ymin = max(ymin, 0)
     xmax = min(xmax, img_mat.shape[1])
     ymax = min(ymax, img_mat.shape[0])
-    color = (-255 * norm_scalar_mult, 0, 0)
+    color = (-255 * norm_scalar_mult, -255 * norm_scalar_mult, -255 * norm_scalar_mult)
 
     for i in range(xmin, xmax):
         for j in range(ymin, ymax):
