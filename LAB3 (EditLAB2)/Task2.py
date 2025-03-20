@@ -1,12 +1,14 @@
 import numpy as np
+# from math import cos, sin, pi
 from LAB1.Task1 import save_image
 from LAB1.Task5 import obj_vf_parser
 from LAB2.Task1 import draw_tr
 
-def build_model(vf):
+def build_model(vf, H: int, W:int):
     matrix = np.full((1000, 1000, 3), (0, 0, 0), dtype=np.uint8)
     
     z_buff = np.full((1000, 1000), np.inf)
+    
     for i in range(len(vf['f'])):
         p1, p2, p3 = [vi - 1 for vi in vf['f'][i]]
 
