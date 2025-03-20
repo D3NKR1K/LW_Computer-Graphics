@@ -2,7 +2,7 @@ import numpy as np
 from math import cos, sin, pi
 from LAB1.Task1 import save_image
 from LAB1.Task5 import obj_vf_parser
-from LAB2.Task1 import draw_tr
+from LAB3_Edit_LAB2.Task1 import draw_tr
 
 def build_model(vf, H: int, W: int):
     matrix = np.full((H, W, 3), (0, 0, 0), dtype=np.uint8)
