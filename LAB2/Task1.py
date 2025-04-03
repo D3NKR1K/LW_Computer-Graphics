@@ -15,8 +15,8 @@ def draw_tr(x0, y0, z0, x1, y1, z1, x2, y2, z2, n0, n1, n2, t1, t2, t3, t_array,
     I1 = (np.dot(n1, l)) / (np.linalg.norm(n1) * np.linalg.norm(l))
     I2 = (np.dot(n2, l)) / (np.linalg.norm(n2) * np.linalg.norm(l))
 
-    x0_p, x1_p, x2_p = [5000 * i[0]/i[1] + w / 2 for i in [(x0, z0), (x1, z1), (x2, z2)]]
-    y0_p, y1_p, y2_p = [5000 * i[0]/i[1] + h / 2 for i in [(y0, z0), (y1, z1), (y2, z2)]]
+    x0_p, x1_p, x2_p = [600 * i[0]/i[1] + w / 2 for i in [(x0, z0), (x1, z1), (x2, z2)]]
+    y0_p, y1_p, y2_p = [600 * i[0]/i[1] + h / 2 for i in [(y0, z0), (y1, z1), (y2, z2)]]
 
     x_min, x_max = int(min(x0_p, x1_p, x2_p)), int(max(x0_p, x1_p, x2_p) + 1)
     if x_min < 0: x_min = 0

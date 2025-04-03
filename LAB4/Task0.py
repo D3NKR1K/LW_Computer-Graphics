@@ -11,7 +11,13 @@ def find_normal(x0, y0, z0, x1, y1, z1, x2, y2, z2):
 
     return np.cross(n1, n2)
 
-def find_vn(parser_dict):
+
+def rotate_vertex(R, vertex_idx):
+    t_vector = np.array([0, -0.049, 0.1]).T
+    rotated = np.dot(R, parser_dict['v'][vertex_idx]) + t_vector
+    return rotated[0], rotated[1], rotated[2]
+
+def find_vn(parser_dict, R):
     vn = np.zeros((len(parser_dict['v']), 3), dtype=float)
 
     for face in parser_dict['f']:
@@ -19,9 +25,9 @@ def find_vn(parser_dict):
         v2 = face[3] - 1
         v3 = face[6] - 1
 
-        x0, y0, z0 = parser_dict['v'][v1]
-        x1, y1, z1 = parser_dict['v'][v2]
-        x2, y2, z2 = parser_dict['v'][v3]
+        x0, y0, z0 = rotate_vertex(R, v1)
+        x1, y1, z1 = rotate_vertex(R, v2)
+        x2, y2, z2 = rotate_vertex(R, v3)
 
         n = find_normal(x0, y0, z0, x1, y1, z1, x2, y2, z2)
         vn[v1] += n
@@ -33,14 +39,13 @@ def find_vn(parser_dict):
 def build_model(parser_dict, h, w):
     matrix = np.full((h, w, 3), (0, 0, 0), dtype=np.uint8)
     z_buff = np.full((h, w), np.inf)
-    vn = find_vn(parser_dict)
     texture_image = Image.open("texture.jpg")
     texture_image = ImageOps.flip(texture_image)
     texture_array = np.array(texture_image)
 
     # Поворот
     alpha = 0
-    beta = 0
+    beta = -pi/2
     gamma = 0
 
     Rx = np.array([[1, 0, 0], [0, cos(alpha), sin(alpha)], [0, -sin(alpha), cos(alpha)]])
@@ -48,6 +53,8 @@ def build_model(parser_dict, h, w):
     Rz = np.array([[cos(gamma), sin(gamma), 0], [-sin(gamma), cos(gamma), 0], [0, 0, 1]])
 
     R = Rx @ Ry @ Rz
+
+    vn = find_vn(parser_dict, R)
 
     for face in parser_dict['f']:
         v1 = face[0] - 1
@@ -58,14 +65,9 @@ def build_model(parser_dict, h, w):
         vt2 = face[4] - 1
         vt3 = face[7] - 1
 
-        def rotate_vertex(vertex_idx):
-            t_vector = np.array([0, -0.049, 1]).T
-            rotated = np.dot(R, parser_dict['v'][vertex_idx]) + t_vector
-            return rotated[0], rotated[1], rotated[2]
-
-        x1, y1, z1 = rotate_vertex(v1)
-        x2, y2, z2 = rotate_vertex(v2)
-        x3, y3, z3 = rotate_vertex(v3)
+        x1, y1, z1 = rotate_vertex(R, v1)
+        x2, y2, z2 = rotate_vertex(R, v2)
+        x3, y3, z3 = rotate_vertex(R, v3)
 
         normal1 = vn[v1]
         normal2 = vn[v2]
@@ -83,4 +85,4 @@ if __name__ == '__main__':
     h, w = 1000, 1000
     parser_dict = obj_parser("model_1.obj")
     matrix = build_model(parser_dict, h, w)
-    save_image(matrix, 'bunny.png')
+    save_image(matrix, 'bunny2.png')
