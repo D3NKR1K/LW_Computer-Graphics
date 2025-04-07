@@ -1,4 +1,4 @@
-from Task5 import obj_vf_parser
+from LAB1.obj_parser import obj_vf_parser
 from Task2 import bresenham_line
 from Task1 import save_image
 from numpy import ndarray, zeros, uint8, rot90

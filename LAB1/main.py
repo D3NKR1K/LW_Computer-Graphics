@@ -1,5 +1,5 @@
 from Task6 import build_model
-from Task5 import obj_vf_parser
+from LAB1.obj_parser import obj_vf_parser
 from Task2 import save_image
 
 if __name__ == '__main__':
