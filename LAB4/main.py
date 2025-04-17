@@ -7,29 +7,29 @@ from draw_image import draw_triangle
 from math import *
 from quaternion_operations import *
 from PIL import Image, ImageOps
-from typing import Tuple, Dict
+from typing import Dict
 
 IMAGE_SIZE = (1000, 1000)
 
 # Функция для построения матрицы поворота по Эйлеру
 def build_rotation_matrix(a: float, b: float, g: float) -> np.ndarray:
-  matrixRX = np.array(
-    [[1, 0, 0], [0, np.cos(a), np.sin(a)], [0, -np.sin(a), np.cos(a)]]
-  )
-  matrixRY = np.array(
-    [[np.cos(b), 0, np.sin(b)], [0, 1, 0], [-np.sin(b), 0, np.cos(b)]]
-  )
-  matrixRZ = np.array(
-    [[np.cos(g), np.sin(g), 0], [-np.sin(g), np.cos(g), 0], [0, 0, 1]]
-  )
-  return matrixRX @ matrixRY @ matrixRZ
+    matrixRX = np.array(
+        [[1, 0, 0], [0, np.cos(a), np.sin(a)], [0, -np.sin(a), np.cos(a)]]
+    )
+    matrixRY = np.array(
+        [[np.cos(b), 0, np.sin(b)], [0, 1, 0], [-np.sin(b), 0, np.cos(b)]]
+    )
+    matrixRZ = np.array(
+        [[np.cos(g), np.sin(g), 0], [-np.sin(g), np.cos(g), 0], [0, 0, 1]]
+    )
+    return matrixRX @ matrixRY @ matrixRZ
 
 
 # Функция для вычисления нормалей вершин на основе данных модели
 def calculate_vertex_normals(
   data: Dict[str, list], rotate_code
 ) -> np.ndarray:
-  vn = np.zeros((len(data["v"]), 3), dtype=np.float32)
+    vn = np.zeros((len(data["v"]), 3), dtype=np.float32)
 
   quaternions = np.tile(np.array([1, 0, 0, 0]), (len(data["v"]), 1))
 
@@ -49,12 +49,12 @@ def calculate_vertex_normals(
         for i, v in zip(v_indices, vertices)
       ]) + RENDER_CONFIG["translation_offset"]
 
-    edge1 = rotated_vertices[1] - rotated_vertices[0]
-    edge2 = rotated_vertices[2] - rotated_vertices[0]
-    face_normal = np.cross(edge2, edge1)
+        edge1 = rotated_vertices[1] - rotated_vertices[0]
+        edge2 = rotated_vertices[2] - rotated_vertices[0]
+        face_normal = np.cross(edge2, edge1)
 
-    for i in v_indices:
-      vn[i] += face_normal
+        for i in v_indices:
+            vn[i] += face_normal
 
   norms = np.linalg.norm(vn, axis=1)
   return vn / norms[:, np.newaxis], quaternions
@@ -62,14 +62,14 @@ def calculate_vertex_normals(
 
 # Функция для загрузки текстуры из файла
 def load_texture(filepath):
-  if filepath != "None":
-    try:
-      texture_img = Image.open(filepath)
-      return np.array(ImageOps.flip(texture_img))
-    except FileNotFoundError:
-      raise (f"Текстура {filepath} не найдена!")
-  else:
-    return None
+    if filepath != "None":
+        try:
+            texture_img = Image.open(filepath)
+            return np.array(ImageOps.flip(texture_img))
+        except FileNotFoundError:
+            raise (f"Текстура {filepath} не найдена!")
+    else:
+        return None
 
 
 # Функция для построения модели и рендера изображения
@@ -117,12 +117,12 @@ def build_model(data: Dict[str, list], matrix, z_buff, textures, rotate_code) ->
 
 
 if __name__ == "__main__":
-  # H, W - высота и ширина изображения
-  H, W = IMAGE_SIZE
+    # H, W - высота и ширина изображения
+    H, W = IMAGE_SIZE
 
-  # Инициализация матрицы изображения и Z-буфера
-  matrix = np.full((H, W, 3), (0, 0, 0), dtype=np.uint8)
-  z_buff = np.full((H, W), np.inf)
+    # Инициализация матрицы изображения и Z-буфера
+    matrix = np.full((H, W, 3), (0, 0, 0), dtype=np.uint8)
+    z_buff = np.full((H, W), np.inf)
 
   print("F10 - обработка с поворотом по Эйлеру\n"
         "F11 - обработка с поворотом по кватернионам\n"
@@ -131,22 +131,20 @@ if __name__ == "__main__":
   while True:
     if keyboard.is_pressed('F10'):
       print("Обработка модели начата!")
+            RENDER_CONFIG = config_parser("../data/config.txt")
 
-      RENDER_CONFIG = config_parser("../data/config.txt")
-
-      # Загрузка текстуры
-      textures = load_texture(RENDER_CONFIG["texture_path"])
+            # Загрузка текстуры
+            textures = load_texture(RENDER_CONFIG["texture_path"])
 
       # Построение матрицы поворота
       rotation_matrix = build_rotation_matrix(*RENDER_CONFIG["rotation_angles_for_eiler"])
 
-      # Парсинг модели
-      data = obj_parser(RENDER_CONFIG["input_path"])
+            # Парсинг модели
+            data = obj_parser(RENDER_CONFIG["input_path"])
 
-      # Построение модели
       image_matrix = build_model(data, matrix, z_buff, textures, 0)
 
-      print("Изменения модели сохранены!")
+            print("Изменения модели сохранены!")
 
     if keyboard.is_pressed('F11'):
       print("Обработка модели начата!")
