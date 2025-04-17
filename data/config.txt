@@ -1,6 +1,6 @@
-"rotation_angles": (0.0, -pi/2, -pi/2)
-"translation_offset": (-0.05, 0.05, 1.0)
-"scale": 5000
-"input_path": "../data/model.obj"
-"texture_path": "../data/bunny-atlas.jpg"
-"output_path": "../data/bunnies/bunnyFinal.png"
+"rotation_angles": (0, pi / 2, pi / 2)
+"translation_offset": (0.0, 0.0, 10.0)
+"scale": 1000
+"input_path": "../data/Frog.obj"
+"texture_path": "../data/Frog.jpg"
+"output_path": "../data/bunnies/Frog.png"
