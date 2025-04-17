@@ -1,5 +1,7 @@
-"rotation_angles": (0.0, -pi/2, -pi/2)
-"translation_offset": (-0.05, 0.05, 1.0)
+"rotation_angles_for_eiler": (0.0, -pi/2, -pi/2)
+"rotation_angle_for_quater": pi/2
+"axis_for_quater": (0, 1, 1)
+"translation_offset": (0, 0, 1.0)
 "scale": 5000
 "input_path": "../data/model.obj"
 "texture_path": "../data/bunny-atlas.jpg"
