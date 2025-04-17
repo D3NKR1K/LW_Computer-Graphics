@@ -1,29 +1,13 @@
 import numpy as np
+import keyboard
 from obj_parser import obj_parser
+from config_parser import config_parser
 from save_image import save_image
 from draw_image import draw_triangle
 from PIL import Image, ImageOps
 from typing import Tuple, Dict
 
-# Конфигурация рендера, задает параметры изображения, поворота, текстуры и смещения
-RENDER_CONFIG = {
-  "image_size": (1000, 1000),  # Размер изображения (в пикселях)
-  "rotation_angles": (0.0, 0.0, 0.0),  # Углы поворота модели (в радианах)
-  "input_path": "../data/model.obj",  # Путь к файлу модели
-  "texture_path": "../data/bunny-atlas.jpg",  # Путь к текстуре
-  "output_path": "../data/bunnies/bunnyFinal.png",  # Путь для сохранения результата
-  "translation_offset": (0, -0.049, 1.0),  # Смещение модели
-}
-
-
-# Функция для поворота вершины с учетом матрицы поворота и смещения
-def rotate_vertex(
-  vertex: np.ndarray,
-  rotation_matrix: np.ndarray,
-  offset: Tuple[float, float, float] = RENDER_CONFIG["translation_offset"],
-):
-  return np.dot(vertex, rotation_matrix) + offset
-
+IMAGE_SIZE = (1000, 1000)
 
 # Функция для построения матрицы поворота по углам (alpha, beta, gamma)
 def build_rotation_matrix(a: float, b: float, g: float) -> np.ndarray:
@@ -63,28 +47,23 @@ def calculate_vertex_normals(
 
 
 # Функция для загрузки текстуры из файла
-def load_texture(filepath: str) -> np.ndarray:
-  try:
-    texture_img = Image.open(filepath)
-    return np.array(ImageOps.flip(texture_img))
-  except FileNotFoundError:
-    raise (f"Текстура {filepath} не найдена!")
+def load_texture(filepath):
+  if filepath != "None":
+    try:
+      texture_img = Image.open(filepath)
+      return np.array(ImageOps.flip(texture_img))
+    except FileNotFoundError:
+      raise (f"Текстура {filepath} не найдена!")
+  else:
+    return None
 
 
 # Функция для построения модели и рендера изображения
-def build_model(data: Dict[str, list]) -> np.ndarray:
-  # H, W - высота и ширина изображения
-  H, W = RENDER_CONFIG["image_size"]
-  # Инициализация матрицы изображения и Z-буфера
-  matrix = np.full((H, W, 3), (0, 0, 0), dtype=np.uint8)
-  z_buff = np.full((H, W), np.inf)
-
-  # Загрузка текстуры
-  textures = load_texture(RENDER_CONFIG["texture_path"])
-  # Построение матрицы поворота
-  rotation_matrix = build_rotation_matrix(*RENDER_CONFIG["rotation_angles"])
+def build_model(data: Dict[str, list], matrix, z_buff, textures) -> np.ndarray:
   # Вычисление нормалей вершин
   vn = calculate_vertex_normals(data, rotation_matrix)
+  # Scale
+  scale = RENDER_CONFIG["scale"]
 
   # Обработка каждой грани модели
   for face in data["f"]:
@@ -109,6 +88,7 @@ def build_model(data: Dict[str, list]) -> np.ndarray:
       textures,
       matrix,
       z_buff,
+      scale,
       H,
       W,
     )
@@ -117,9 +97,35 @@ def build_model(data: Dict[str, list]) -> np.ndarray:
 
 
 if __name__ == "__main__":
-  # Парсинг модели
-  data = obj_parser(RENDER_CONFIG["input_path"])
+  # H, W - высота и ширина изображения
+  H, W = IMAGE_SIZE
 
-  # Построение модели и сохранение изображения
-  image_matrix = build_model(data)
-  save_image(image_matrix, RENDER_CONFIG["output_path"])
+  # Инициализация матрицы изображения и Z-буфера
+  matrix = np.full((H, W, 3), (0, 0, 0), dtype=np.uint8)
+  z_buff = np.full((H, W), np.inf)
+
+  while True:
+    if keyboard.is_pressed('F10'):
+      print("Обработка модели начата!")
+
+      RENDER_CONFIG = config_parser("../data/config.txt")
+
+      # Загрузка текстуры
+      textures = load_texture(RENDER_CONFIG["texture_path"])
+
+      # Построение матрицы поворота
+      rotation_matrix = build_rotation_matrix(*RENDER_CONFIG["rotation_angles"])
+
+      # Парсинг модели
+      data = obj_parser(RENDER_CONFIG["input_path"])
+
+      # Построение модели
+      image_matrix = build_model(data, matrix, z_buff, textures)
+
+      print("Изменения модели сохранены!")
+
+    if keyboard.is_pressed('F11'):
+      # Сохранение изображения
+      save_image(image_matrix, RENDER_CONFIG["output_path"])
+      print("Модель сохранена в виде изображения!")
+      break
