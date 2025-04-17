@@ -32,6 +32,7 @@ def draw_triangle(
   textures: np.ndarray,
   img_mat: np.ndarray,
   z_buffer: np.ndarray,
+  scale: int,
   H: int,
   W: int,
 ) -> np.ndarray:
@@ -47,10 +48,10 @@ def draw_triangle(
 
   # Преобразование координат вершин в экранные координаты
   x0_p, x1_p, x2_p = (
-    5000 * i[0] / i[1] + H / 2 for i in ((x0, z0), (x1, z1), (x2, z2))
+    scale * i[0] / i[1] + H / 2 for i in ((x0, z0), (x1, z1), (x2, z2))
   )
   y0_p, y1_p, y2_p = (
-    5000 * i[0] / i[1] + W / 2 for i in ((y0, z0), (y1, z1), (y2, z2))
+    scale * i[0] / i[1] + W / 2 for i in ((y0, z0), (y1, z1), (y2, z2))
   )
 
   # Определение границ треугольника
@@ -68,17 +69,23 @@ def draw_triangle(
       ):  # Проверка, находится ли точка внутри треугольника
         z = l0 * z0 + l1 * z1 + l2 * z2  # Интерполяция глубины
         if z < z_buffer[j, i]:  # Проверка буфера глубины
-          # Интерполяция текстурных координат
-          u = l0 * t0[0] + l1 * t1[0] + l2 * t2[0]
-          v = l0 * t0[1] + l1 * t1[1] + l2 * t2[1]
+          if textures is not None:
+            # Интерполяция текстурных координат
+            u = l0 * t0[0] + l1 * t1[0] + l2 * t2[0]
+            v = l0 * t0[1] + l1 * t1[1] + l2 * t2[1]
 
-          # Преобразование текстурных координат в индексы текстуры
-          t_i = min(int(u * textures.shape[1]), textures.shape[1] - 1)
-          t_j = min(int(v * textures.shape[0]), textures.shape[0] - 1)
+            # Преобразование текстурных координат в индексы текстуры
+            t_i = min(int(u * textures.shape[1]), textures.shape[1] - 1)
+            t_j = min(int(v * textures.shape[0]), textures.shape[0] - 1)
 
-          color = textures[t_j, t_i]  # Получение цвета из текстуры
+            color = textures[t_j, t_i]  # Получение цвета из текстуры
 
-          # Применение интенсивности света к цвету
-          intensity = l0 * I0 + l1 * I1 + l2 * I2
-          img_mat[j, i] = (color * intensity).astype(np.uint8)  # Обновление изображения
-          z_buffer[j, i] = z  # Обновление буфера глубины
+            # Применение интенсивности света к цвету
+            intensity = l0 * I0 + l1 * I1 + l2 * I2
+            img_mat[j, i] = (color * intensity).astype(np.uint8)  # Обновление изображения
+            z_buffer[j, i] = z  # Обновление буфера глубины
+          else:
+            color = 255
+            intensity = l0 * I0 + l1 * I1 + l2 * I2
+            img_mat[j, i] = (color * intensity)
+            z_buffer[j, i] = z
